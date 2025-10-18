@@ -1,6 +1,7 @@
 ﻿// server.js
 const express = require('express');
 const axios = require('axios');
+const path = require('path');
 const WhatsAppCarProtectionBot = require('./bot');
 require('dotenv').config(); // for local dev; Vercel injects envs automatically
 
@@ -40,6 +41,10 @@ app.use(express.static('public'));
 
 // ---- HEALTH / ROOT ----
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/status', (req, res) => {
   res.json({
     message: 'WhatsApp Car Protection Chatbot Server',
     status: 'running',
@@ -259,8 +264,27 @@ module.exports = app;
 
 // Local dev: only listen when run directly (not on Vercel)
 if (require.main === module) {
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`Local dev server: http://localhost:${port}`);
-  });
+  const DEFAULT_PORT = Number(process.env.PORT) || 3000;
+  const MAX_RETRIES = 5;
+
+  const tryListen = (portToTry, attempt = 0) => {
+    const server = app.listen(portToTry, () => {
+      console.log(`Local dev server: http://localhost:${portToTry}`);
+    });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE' && attempt < MAX_RETRIES) {
+        const nextPort = portToTry + 1;
+        console.warn(`⚠️ Port ${portToTry} in use. Trying ${nextPort}...`);
+        tryListen(nextPort, attempt + 1);
+      } else {
+        console.error('❌ Failed to start server:', err);
+        console.error(
+          '➡️  Set a free port with "set PORT=3001" (PowerShell) or "PORT=3001 npm start" (bash) and retry.'
+        );
+      }
+    });
+  };
+
+  tryListen(DEFAULT_PORT);
 }
