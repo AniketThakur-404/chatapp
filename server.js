@@ -1,14 +1,17 @@
 ﻿const express = require('express');
 const axios = require('axios');
 const WhatsAppCarProtectionBot = require('./bot');
+require('dotenv').config();
+
 
 const app = express();
 const bot = new WhatsAppCarProtectionBot();
 
 // Replace these with your actual values from Meta Dashboard
-const VERIFY_TOKEN = 'CarBot2025';
-const ACCESS_TOKEN = 'EAAc9GSD0KEkBPgUzAgfT1TNw0sMTGDV2ZAbYqEgWw8pFw9CYmM4cX4g1IVQuUH1TdYtu0L4BpkSe8RkmVQUbrk9jSUM5wZBlqODzwyjIi6c4660DBNqnMdJ3Ph04HgjG1pWdeZBLBgwez50VCKYHqDWwXVB3G6BK6qZCaOr1kRZAQ5lh6dZCHQtoSygR5uGtqyRPAyEqG17h7D00pDcBWkZBpHFBZBqerQENJ8a3DZC13ZCZALYdQZDZD';
-const PHONE_NUMBER_ID = '789143067615427';
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+
 
 // Middleware
 app.use(express.json());
